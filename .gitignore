@@ -6,4 +6,7 @@ dist/
 vite.config.js
 vite.config.d.ts
 graphify-out/
+playwright-report/
+test-results/
+.factory/evidence/
 .DS_Store

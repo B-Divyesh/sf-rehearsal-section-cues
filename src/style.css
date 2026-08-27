@@ -86,7 +86,8 @@ a:hover { text-decoration-thickness: 2px; }
   text-transform: uppercase;
 }
 .site-header nav, .site-footer nav { display: flex; gap: 24px; align-items: center; }
-.site-header nav a { font-weight: 700; text-decoration: none; }
+.site-header nav a, .site-footer nav a { display: inline-flex; min-height: 44px; align-items: center; font-weight: 700; }
+.site-header nav a { text-decoration: none; }
 
 main { width: 100%; }
 
@@ -281,7 +282,7 @@ kbd { padding: 2px 5px; border: 1px solid var(--rule); border-bottom-width: 2px;
 .output-board > div > p { max-width: 58ch; margin-bottom: 0; }
 .output-actions { display: flex; flex-wrap: wrap; gap: 10px; align-content: start; }
 .output-note { margin: 0; color: var(--muted); font-size: .9rem; }
-.compact-option { display: flex; gap: 12px; align-items: center; }
+.compact-option { display: flex; min-height: 44px; gap: 12px; align-items: center; }
 .compact-option input { width: 24px; height: 24px; accent-color: var(--blue-deep); }
 .compact-option span { display: grid; }
 .compact-option small { color: var(--muted); }

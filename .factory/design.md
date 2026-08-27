@@ -68,11 +68,11 @@ Generation prompt:
 
 > Use case: stylized-concept. Asset type: responsive landing-page editorial illustration. A top-down ensemble rehearsal planning still life on warm ivory drafting paper: a blank structured cue-planning card with cobalt construction lines and small empty check boxes, a mechanical metronome, graphite pencil and red marking pencil, brushed metal ruler, removable faded-cyan and red section tabs, and subtle corners of well-worn instrument cases. Arrange the objects as a precise working desk with clear negative space and a strong diagonal rhythm. Editorial mixed-media photography with a lightly screen-printed blueprint texture, soft north-window light, crisp natural shadows, 50 mm equivalent. Warm paper, blueprint cobalt, faded cyan, restrained red pencil, dark navy. No people, no hands, no faces, no readable text, no letters, no numbers, no musical notation, no sheet music, no logos, no brands, no watermark, no gradients, no neon, no glossy 3D UI, no fake app screen.
 
-Generated through the factory Azure image deployment (`factory-image`) on 2026-08-27. The selected original and its prompt sidecar live in `assets/src/`; shipping WebP/AVIF derivatives live in `public/assets/`. Generated imagery is original to this product and is disclosed in the footer.
+Generated through the factory Azure image deployment (`factory-image`) on 2026-08-27. The selected original and its prompt sidecar live in `assets/src/`; optimized WebP derivatives and a JPEG fallback live in `public/assets/`. Generated imagery is original to this product and is disclosed in the footer.
 
 ### Code-native marks
 
-The app mark is a hand-authored SVG composed of a drafting registration cross, a section bracket, and three pass lines. PWA icons reuse that geometry at 192 and 512 px with the paper/cobalt palette. License: MIT with the application source.
+The app mark is a hand-authored SVG composed of a drafting registration cross, a section bracket, and three pass lines. Rasterized 192 and 512 px maskable PWA icons reuse that geometry with the paper/cobalt palette. License: MIT with the application source.
 
 ## Print treatment
 

@@ -75,7 +75,7 @@ function scheduleSave(): void {
 function cueMarkup(cue: Cue, index: number): string {
   const n = index + 1
   return `
-    <li class="cue-card ${cue.complete ? 'is-complete' : ''}" data-cue-id="${cue.id}">
+    <li class="cue-card ${cue.complete ? 'is-complete' : ''}" data-cue-id="${cue.id}" tabindex="-1">
       <div class="cue-rail" aria-hidden="true"><span>${String(n).padStart(2, '0')}</span></div>
       <div class="cue-body">
         <div class="cue-heading">
@@ -259,7 +259,7 @@ function render(): void {
                 <summary>Have a license? Restore it</summary>
                 <form id="license-form">
                   <label class="field"><span>License token</span><input id="license-token" required autocomplete="off" spellcheck="false" /></label>
-                  <button class="secondary-button" type="submit">Verify license</button>
+                  <button class="secondary-button" type="submit" aria-label="Verify license">Verify license</button>
                 </form>
               </details>
             </div>`}
@@ -320,6 +320,7 @@ async function importFile(file: File): Promise<void> {
     const imported = file.name.toLowerCase().endsWith('.csv')
       ? csvToSheet(text, file.name.replace(/\.csv$/i, ''))
       : normalizeSheet(JSON.parse(text) as unknown)
+    if (sheet.cues.length && !window.confirm(`Replace “${sheet.title}” and its ${sheet.cues.length} cue${sheet.cues.length === 1 ? '' : 's'} with ${file.name}? Export a backup first if you need it.`)) return
     sheet = imported
     deletedCue = null
     notice = `Imported ${sheet.cues.length} cue${sheet.cues.length === 1 ? '' : 's'} from ${file.name}.`
@@ -515,14 +516,18 @@ async function init(): Promise<void> {
   })
   void registerServiceWorker()
   void checkConnectivity()
-  if (localStorage.getItem('sb_license:rehearsal-section-cues')) {
-    void verifyLicense().then((valid) => {
-      if (valid !== unlocked) {
-        unlocked = valid
-        if (!valid) notice = 'License no longer active. Free planning and exports still work.'
-        render()
-      }
-    }).catch(() => undefined)
+  try {
+    if (localStorage.getItem('sb_license:rehearsal-section-cues')) {
+      void verifyLicense().then((valid) => {
+        if (valid !== unlocked) {
+          unlocked = valid
+          if (!valid) notice = 'License no longer active. Free planning and exports still work.'
+          render()
+        }
+      }).catch(() => undefined)
+    }
+  } catch {
+    // License storage is optional; restricted storage must not affect cue planning.
   }
 }
 

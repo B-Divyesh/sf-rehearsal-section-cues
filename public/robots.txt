@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rehearsal-section-cues.sociobot.in/sitemap.xml
