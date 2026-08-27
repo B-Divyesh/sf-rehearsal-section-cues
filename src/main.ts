@@ -453,9 +453,19 @@ function bindEvents(): void {
   })
 }
 
-function setOnlineState(): void {
+function setOnlineState(force?: boolean): void {
   const state = document.querySelector<HTMLElement>('#online-state')
-  if (state) state.textContent = navigator.onLine ? 'ONLINE' : 'OFFLINE — CHANGES STILL SAVE'
+  const online = force ?? navigator.onLine
+  if (state) state.textContent = online ? 'ONLINE' : 'OFFLINE — CHANGES STILL SAVE'
+}
+
+async function checkConnectivity(): Promise<void> {
+  try {
+    await fetch(`/connectivity-check.txt?t=${Date.now()}`, { cache: 'no-store' })
+    setOnlineState(true)
+  } catch {
+    setOnlineState(false)
+  }
 }
 
 async function registerServiceWorker(): Promise<void> {
@@ -490,8 +500,8 @@ async function init(): Promise<void> {
     storageError = 'Local storage is unavailable. You can still draft and export this session.'
   }
   render()
-  window.addEventListener('online', setOnlineState)
-  window.addEventListener('offline', setOnlineState)
+  window.addEventListener('online', () => void checkConnectivity())
+  window.addEventListener('offline', () => setOnlineState(false))
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault()
     installPrompt = event as BeforeInstallPromptEvent
@@ -504,6 +514,7 @@ async function init(): Promise<void> {
     }
   })
   void registerServiceWorker()
+  void checkConnectivity()
   if (localStorage.getItem('sb_license:rehearsal-section-cues')) {
     void verifyLicense().then((valid) => {
       if (valid !== unlocked) {

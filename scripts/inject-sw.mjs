@@ -4,6 +4,18 @@ import { join, relative, sep } from 'node:path'
 const root = new URL('../dist/', import.meta.url)
 const rootPath = root.pathname
 
+const indexPath = join(rootPath, 'index.html')
+let html = await readFile(indexPath, 'utf8')
+const scriptMatch = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/)
+const styleMatch = html.match(/<link rel="stylesheet" crossorigin href="([^"]+)">/)
+if (!scriptMatch || !styleMatch) throw new Error('Could not locate the built app assets for offline inlining')
+const script = await readFile(join(rootPath, scriptMatch[1].slice(1)), 'utf8')
+const style = await readFile(join(rootPath, styleMatch[1].slice(1)), 'utf8')
+html = html
+  .replace(scriptMatch[0], `<script type="module">${script}</script>`)
+  .replace(styleMatch[0], `<style>${style}</style>`)
+await writeFile(indexPath, html)
+
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true })
   const paths = []
