@@ -1,0 +1,30 @@
+{
+  "slug": "rehearsal-section-cues",
+  "title": "Rehearsal Section Cues",
+  "territory": "games-creative",
+  "user": "A small ensemble leader or multi-instrument player who needs a clear, printable cue sheet for where a rehearsal section begins, who plays on each pass, and what is difficult there.",
+  "evidence": [
+    {
+      "url": "https://github.com/musescore/MuseScore/issues/34630",
+      "date": "2026-08-19",
+      "quote_or_summary": "A notation user asks for previous/next rehearsal-mark hints and jumping because, after moving to a random point in a piece, they are often disoriented about exactly where they are."
+    },
+    {
+      "url": "https://music.stackexchange.com/questions/140722/how-to-tell-whether-a-piece-is-too-difficult-for-me",
+      "date": "2025-06-01",
+      "quote_or_summary": "A player considering a fast solo asks how to decide independently whether a passage is realistically learnable before committing serious practice."
+    }
+  ],
+  "recurrence": "One 2025 readiness question and one active 2026 navigation request expose the same rehearsal-planning gap: the score alone does not state the practical work at each section. Severity is medium-high for limited rehearsal time.",
+  "current_workaround": "Markup on photocopies, separate emails, or trying to encode rehearsal intent into notation software.",
+  "incumbents_and_gap": "MuseScore, forScore, and Setlist apps manage scores/setlists. They do not produce a fast, score-agnostic section cue card that an ensemble can agree on without editing the source notation.",
+  "smallest_useful_product": "A printable/mobile cue-sheet builder: section label, repeat number, active players, one technical risk, tempo target, and completion status. Non-goals: score rendering, playback, automated difficulty scoring, cloud rehearsal rooms, or copyrighted chart storage.",
+  "success_measure": "In 10 ensemble rehearsals, leaders create a usable sheet in under eight minutes and participants report fewer than one clarification per repeated section on average.",
+  "artifact_class": "pwa-offline",
+  "monetization": "one-time — an ensemble-friendly print/export utility has clear event value with no ongoing infrastructure need.",
+  "constraints": "Use only user-entered section labels and measure references; do not host sheet music; support accessible high-contrast printable output.",
+  "est_build_effort": "S",
+  "why_distinct": "It lives beside notation as a rehearsal-operating sheet, not as a competing notation editor.",
+  "confidence": 3,
+  "state": "RESEARCHED"
+}
