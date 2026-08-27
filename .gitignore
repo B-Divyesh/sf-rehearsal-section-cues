@@ -2,5 +2,8 @@ node_modules/
 dist/
 .env
 *.log
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
 graphify-out/
 .DS_Store

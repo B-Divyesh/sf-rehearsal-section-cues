@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Rehearsal Section Cues registration mark</title>
+  <rect width="64" height="64" rx="8" fill="#fffdf6"/>
+  <path d="M8 16h12M14 10v12M50 42v12M44 48h12" fill="none" stroke="#a5362b" stroke-width="2"/>
+  <path d="M22 13h24v38H22M22 13v38M28 23h14M28 32h14M28 41h14" fill="none" stroke="#0a3970" stroke-width="4" stroke-linecap="square"/>
+  <circle cx="22" cy="23" r="2.5" fill="#145aa3"/>
+  <circle cx="22" cy="32" r="2.5" fill="#145aa3"/>
+  <circle cx="22" cy="41" r="2.5" fill="#276544"/>
+</svg>
