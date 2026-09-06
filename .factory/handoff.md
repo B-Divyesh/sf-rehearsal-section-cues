@@ -4,7 +4,7 @@
 
 - Product: <https://rehearsal-section-cues.sociobot.in>
 - Implementation SHA deployed: `2a0b3de2a7173ecbabc5a9bc9c6fc8bf7b5aab80` (`fix: align offline fallback route`), following the demo implementation `1dfe9f7`.
-- Verification documentation SHA: `c0823a52f30b7e6eb5644f7278d114561d955cee` (`docs: update final deployment handoff`)
+- Verification documentation SHA: recorded in the follow-up handoff commit.
 - Deployment: factory static deployment completed on 2026-09-06 UTC. An initial upload used an older local `dist/` shell; the live-label comparison detected it, so SHA `1dfe9f7` was rebuilt and redeployed. The final SHA `2a0b3de` deployment also aligns the offline fallback with the shared site skeleton. Live HTML contains `REHEARSAL CUE SHEET` / `YOUR DEVICE`.
 
 The product now meets the job: a small ensemble leader or multi-instrument player can make, save, print, export, import, and rehearse a clear cue sheet with a section, pass, active players, risk, tempo, and completion state.
@@ -38,6 +38,7 @@ Live cold checks after the final deployment:
 - Fresh desktop and phone contexts saw the plain first screen, then the one-click sample with four populated cues and the persistent demo controls. Neither viewport overflowed. Normal demo traffic stayed same-origin.
 - Playwright Axe on live desktop and phone found **0 serious/critical** violations. The standalone Axe CLI was attempted, but the runner’s installed ChromeDriver supports Chrome 152 while the factory’s supplied Chromium is 145; the required equivalent Playwright Axe integration completed successfully.
 - Live offline test: after service-worker control, `/demo` reloaded offline, displayed `OFFLINE — CHANGES STILL SAVE`, marked a cue rehearsed, and had **0** console errors.
+- A disposable server serving the final `dist/` then changed only its service-worker response. The controlled app displayed `An app update is ready. Reload to use it.`; the update notification remains functional.
 - `/not-a-real-page` returns HTTP **404** with `Page not found — Rehearsal Section Cues` and recovery links.
 - Live headers: `Content-Security-Policy` (including response-header `frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy`, Permissions Policy; manifest is `application/manifest+json`; hashed app assets are `max-age=31536000, immutable`; HTML is `no-cache, must-revalidate`.
 - Live Lighthouse on `/demo`: Performance **98**, Accessibility **100**, Best Practices **100**, SEO **100**; LCP **0.9 s**, CLS **0**.
