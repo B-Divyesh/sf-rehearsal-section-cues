@@ -3,8 +3,8 @@ import AxeBuilder from '@axe-core/playwright'
 
 test('creates, saves, reloads, and exports a rehearsal cue', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1, name: /Rehearsal Section Cues/i })).toBeVisible()
-  await page.getByLabel('Plan title').fill('Thursday trio run')
+  await expect(page.getByRole('heading', { level: 1, name: /Make a rehearsal cue sheet/i })).toBeVisible()
+  await page.getByLabel('Cue sheet title').fill('Thursday trio run')
   await page.getByRole('button', { name: 'Add the first cue' }).click()
   await page.getByLabel('Section label *').fill('B — bridge pickup')
   await page.getByLabel('Measure / reference').fill('m. 42')
@@ -17,7 +17,7 @@ test('creates, saves, reloads, and exports a rehearsal cue', async ({ page }) =>
   await expect(page.locator('#save-state')).toContainText('SAVED LOCALLY')
 
   await page.reload()
-  await expect(page.getByLabel('Plan title')).toHaveValue('Thursday trio run')
+  await expect(page.getByLabel('Cue sheet title')).toHaveValue('Thursday trio run')
   await expect(page.getByLabel('Section label *')).toHaveValue('B — bridge pickup')
   await expect(page.getByText('Rehearsed', { exact: true })).toBeVisible()
 
@@ -48,7 +48,7 @@ test('reloads the complete shell and keeps editing offline', async ({ page, cont
   })
   await context.setOffline(true)
   await page.reload()
-  await expect(page.getByRole('heading', { level: 1, name: /Rehearsal Section Cues/i })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: /Make a rehearsal cue sheet/i })).toBeVisible()
   await expect(page.locator('#online-state')).toContainText('OFFLINE')
   await page.getByRole('button', { name: 'Add the first cue' }).click()
   await page.getByLabel('Section label *').fill('Offline coda')

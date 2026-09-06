@@ -1,6 +1,6 @@
 import './style.css'
 import { csvToSheet, emptySheet, newCue, normalizeSheet, sheetToCsv, type Cue, type CueSheet } from './model'
-import { loadSheet, saveSheet } from './storage'
+import { clearSheet, loadSheet, saveSheet, type StorageNamespace } from './storage'
 import {
   cachedUnlock,
   captureReturnedLicense,
@@ -24,6 +24,20 @@ let unlocked = false
 let compactPrint = false
 let installPrompt: BeforeInstallPromptEvent | null = null
 let deletedCue: { cue: Cue; index: number } | null = null
+const demoMode = window.location.pathname === '/demo' || new URLSearchParams(window.location.search).get('demo') === '1'
+const storageNamespace: StorageNamespace = demoMode ? 'demo' : 'real'
+
+const demoSheet = (): CueSheet => ({
+  version: 1,
+  title: 'Thursday trio rehearsal',
+  updatedAt: new Date().toISOString(),
+  cues: [
+    { id: crypto.randomUUID(), label: 'A — opening groove', measure: 'm. 1', repeat: 1, players: 'Flute, keys, bass', risk: 'Leave space before the bass entrance', tempo: 92, complete: true },
+    { id: crypto.randomUUID(), label: 'B — bridge pickup', measure: 'm. 42', repeat: 2, players: 'Flute, keys', risk: 'Release together after the rest', tempo: 96, complete: false },
+    { id: crypto.randomUUID(), label: 'C — solo handoff', measure: 'm. 68', repeat: 1, players: 'Keys, bass', risk: 'Keep the new pulse after the fermata', tempo: 84, complete: false },
+    { id: crypto.randomUUID(), label: 'D — final tag', measure: 'm. 104', repeat: 3, players: 'Full trio', risk: 'Watch the cut-off on the third pass', tempo: 100, complete: false },
+  ],
+})
 
 const escapeHtml = (value: string): string => value
   .replaceAll('&', '&amp;')
@@ -45,13 +59,25 @@ function setNotice(message: string): void {
   render()
 }
 
+function setRouteMetadata(): void {
+  const title = demoMode ? 'Demo — Rehearsal Section Cues' : 'Rehearsal Section Cues — Printable cue sheets'
+  const description = demoMode
+    ? 'Try a sample rehearsal cue sheet without changing your own plan.'
+    : 'Make a clear, printable cue sheet for each rehearsal section.'
+  document.title = title
+  document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', description)
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', demoMode
+    ? 'https://rehearsal-section-cues.sociobot.in/demo'
+    : 'https://rehearsal-section-cues.sociobot.in/')
+}
+
 async function persist(): Promise<void> {
   window.clearTimeout(saveTimer)
   sheet.updatedAt = new Date().toISOString()
   const saveState = document.querySelector<HTMLElement>('#save-state')
   if (saveState) saveState.textContent = 'SAVING…'
   try {
-    await saveSheet(sheet)
+    await saveSheet(sheet, storageNamespace)
     storageError = ''
     if (saveState) saveState.textContent = 'SAVED LOCALLY'
   } catch {
@@ -63,6 +89,25 @@ async function persist(): Promise<void> {
       error.textContent = storageError
     }
   }
+}
+
+async function resetDemo(): Promise<void> {
+  if (!demoMode) return
+  sheet = demoSheet()
+  deletedCue = null
+  notice = 'Sample cue sheet reset.'
+  render()
+  await persist()
+}
+
+async function startForReal(): Promise<void> {
+  if (!demoMode) return
+  try {
+    await clearSheet('demo')
+  } catch {
+    // The real plan is still isolated even if this browser cannot clear the sample.
+  }
+  window.location.assign('/')
 }
 
 function scheduleSave(): void {
@@ -139,8 +184,9 @@ function render(): void {
         <span>Section cues</span>
       </a>
       <nav aria-label="Utility navigation">
-        <a href="#guide">How it works</a>
-        <a href="#unlock">Conductor unlock</a>
+        <a href="/demo">Demo</a>
+        <a href="#cue-sheet">Cue sheet</a>
+        <a href="/privacy/">Privacy</a>
         <button id="install-button" class="text-button" type="button" ${installPrompt ? '' : 'hidden'}>Install app</button>
       </nav>
     </header>
@@ -148,11 +194,23 @@ function render(): void {
     <main id="main">
       <section class="intro no-print" aria-labelledby="page-title">
         <div class="intro-copy">
-          <p class="drawing-number">DRAWING RSC—01 <span>REV A</span></p>
-          <h1 id="page-title">Rehearsal<br />Section Cues</h1>
-          <p class="lede">Turn “where are we?” into one shared plan. Mark the start, the pass, who plays, and the one thing to watch.</p>
-          <a class="primary-button" href="#cue-sheet">Build the cue sheet <span aria-hidden="true">↓</span></a>
-          <p class="privacy-note"><span aria-hidden="true">◆</span> Stored only on this device. Works offline.</p>
+          <p class="drawing-number">${demoMode ? 'DEMO' : 'REHEARSAL CUE SHEET'} <span>${demoMode ? 'SAMPLE DATA' : 'YOUR DEVICE'}</span></p>
+          <h1 id="page-title">Make a rehearsal cue sheet</h1>
+          <p class="lede">For ensemble leaders and multi-instrument players who need every repeated section clear.</p>
+          ${demoMode ? `
+            <div class="demo-actions">
+              <button class="primary-button" type="button" id="reset-demo">Reset demo</button>
+              <button class="secondary-button" type="button" id="start-real">Start for real</button>
+            </div>
+            <p class="action-note">Edit this filled sample. It never changes your real plan.</p>` : `
+            <a class="primary-button" href="/demo">Try it with sample data <span aria-hidden="true">→</span></a>
+            <p class="action-note">Opens a filled rehearsal plan you can reset.</p>
+            <a class="text-link" href="#cue-sheet">Start a blank cue sheet</a>`}
+          <ul class="plain-facts" aria-label="Product facts">
+            <li>Your plan stays on this device.</li>
+            <li>Works offline after the first visit.</li>
+            <li>$12 one-time for optional unlimited printing.</li>
+          </ul>
         </div>
         <figure class="hero-figure">
           <picture>
@@ -160,15 +218,21 @@ function render(): void {
             <source srcset="/assets/rehearsal-blueprint-hero-1024.webp" type="image/webp" />
             <img src="/assets/rehearsal-blueprint-hero-1024.jpg" width="1024" height="683" fetchpriority="high" alt="A rehearsal planning card, metronome, ruler and pencils arranged on warm blueprint paper." />
           </picture>
-          <figcaption><span>Fig. A</span> The operating sheet beside the score</figcaption>
+          <figcaption><span>Example</span> A cue sheet beside rehearsal notes</figcaption>
         </figure>
       </section>
+
+      ${demoMode ? `
+        <aside class="demo-banner no-print" aria-label="Demo controls">
+          <p><strong>Demo — sample data, nothing is saved to your real plan.</strong> Reset the sample or start a blank plan when you are ready.</p>
+          <div><button class="text-button" type="button" id="reset-demo-banner">Reset demo</button><button class="text-button" type="button" id="start-real-banner">Start for real</button></div>
+        </aside>` : ''}
 
       <section id="cue-sheet" class="workspace" aria-labelledby="sheet-heading">
         <div class="workspace-heading">
           <div>
-            <p class="eyebrow">Working drawing / saved automatically</p>
-            <h2 id="sheet-heading">Build the rehearsal run</h2>
+            <p class="eyebrow">${demoMode ? 'Sample cue sheet' : 'Saved automatically'}</p>
+            <h2 id="sheet-heading">Your rehearsal cue sheet</h2>
           </div>
           <div class="local-state">
             <span id="save-state" role="status">SAVED LOCALLY</span>
@@ -181,13 +245,13 @@ function render(): void {
 
         <div class="sheet-meta">
           <label class="field title-field">
-            <span>Plan title</span>
+            <span>Cue sheet title</span>
             <input id="sheet-title" value="${escapeHtml(sheet.title)}" maxlength="100" autocomplete="off" />
             <strong class="print-value print-title">${escapeHtml(sheet.title)}</strong>
           </label>
           <div class="progress-spec" aria-label="${complete} of ${sheet.cues.length} cues rehearsed">
             <span>${complete}/${sheet.cues.length || 0} rehearsed</span>
-            <div class="progress-track"><i style="width:${completion}%"></i></div>
+            <progress class="progress-track" value="${complete}" max="${Math.max(sheet.cues.length, 1)}">${completion}%</progress>
             <b>${completion}%</b>
           </div>
           <p class="print-meta">Updated ${formatDate(sheet.updatedAt)} · ${complete} of ${sheet.cues.length} rehearsed</p>
@@ -200,9 +264,9 @@ function render(): void {
           <div class="empty-state">
             <div class="empty-mark" aria-hidden="true"><span>01</span></div>
             <div>
-              <p class="eyebrow">The drafting board is clear</p>
-              <h3>Start where the ensemble starts.</h3>
-              <p>Add a section, then record the practical cue the score does not carry.</p>
+              <p class="eyebrow">No section cues yet</p>
+              <h3>Add your first section cue</h3>
+              <p>Add the reference, active players, and one technical risk for this rehearsal section.</p>
               <button class="primary-button" type="button" data-add>Add the first cue</button>
             </div>
           </div>`}
@@ -215,9 +279,9 @@ function render(): void {
 
       <section class="output-board no-print" aria-labelledby="output-heading">
         <div>
-          <p class="eyebrow">Issue the drawing</p>
-          <h2 id="output-heading">Take it to the stand</h2>
-          <p>Print a high-contrast sheet, or move your editable data between devices. JSON and CSV export are always free.</p>
+          <p class="eyebrow">Print and backup</p>
+          <h2 id="output-heading">Print and save your cue sheet</h2>
+          <p>Print a black-on-white sheet, or move your editable cue sheet between devices.</p>
         </div>
         <div class="output-actions">
           <button class="primary-button" type="button" id="print-button">Print cue sheet</button>
@@ -226,7 +290,7 @@ function render(): void {
           <button class="secondary-button" type="button" id="import-button">Import JSON / CSV</button>
           <input id="import-file" type="file" accept=".json,.csv,application/json,text/csv" hidden />
         </div>
-        <p class="output-note">Free printing includes up to 6 section cues. Export, import, and offline access stay free with any sheet size.</p>
+        <p class="output-note">Free printing includes up to 6 section cues. Export stays available with any sheet size.</p>
         <label class="compact-option ${unlocked ? '' : 'locked'}">
           <input id="compact-print" type="checkbox" ${compactPrint ? 'checked' : ''} ${unlocked ? '' : 'disabled'} />
           <span><b>Condensed ensemble layout</b><small>${unlocked ? 'Fit more cues per page.' : 'Included with Conductor unlock.'}</small></span>
@@ -235,23 +299,23 @@ function render(): void {
 
       <section id="guide" class="guide no-print" aria-labelledby="guide-heading">
         <div class="guide-title">
-          <p class="eyebrow">Four field notes</p>
-          <h2 id="guide-heading">Agree before the downbeat</h2>
+          <p class="eyebrow">Four steps</p>
+          <h2 id="guide-heading">How to make a cue sheet</h2>
         </div>
         <ol>
-          <li><b>01</b><span><strong>Name the landing</strong>Use the rehearsal letter or measure reference everyone already has.</span></li>
-          <li><b>02</b><span><strong>Call the pass</strong>Make repeats explicit so “again” means the same thing to everyone.</span></li>
-          <li><b>03</b><span><strong>Assign the sound</strong>List only the players active on that pass.</span></li>
-          <li><b>04</b><span><strong>Expose one risk</strong>Choose the technical snag most likely to cost the run.</span></li>
+          <li><b>01</b><span><strong>Name the section</strong>Use the rehearsal letter or measure reference everyone already has.</span></li>
+          <li><b>02</b><span><strong>Set the pass</strong>Make repeats explicit so “again” means the same thing to everyone.</span></li>
+          <li><b>03</b><span><strong>List active players</strong>List only the players active on that pass.</span></li>
+          <li><b>04</b><span><strong>Record one risk</strong>Choose the technical snag most likely to cost the run.</span></li>
         </ol>
       </section>
 
       <section id="unlock" class="unlock no-print" aria-labelledby="unlock-heading">
         <div class="unlock-stamp" aria-hidden="true">${unlocked ? 'UNLOCKED' : 'OPTIONAL'}</div>
         <div>
-          <p class="eyebrow">One-time utility license</p>
+          <p class="eyebrow">Optional one-time license</p>
           <h2 id="unlock-heading">Conductor unlock</h2>
-          <p>Print unlimited cues and use the condensed ensemble layout for <strong>${PRICE_LABEL}</strong>. No subscription. Core planning, accessibility, offline use, and data export stay free.</p>
+          <p>Print unlimited cues and use the condensed ensemble layout for <strong>${PRICE_LABEL}</strong>. This is not a subscription. Core planning, accessibility, offline use, and data export stay free.</p>
           ${unlocked ? '<p class="license-active">✓ License active on this device.</p>' : `
             <div class="unlock-actions">
               <a class="primary-button" href="${CHECKOUT_URL}">Buy Conductor unlock</a>
@@ -263,16 +327,16 @@ function render(): void {
                 </form>
               </details>
             </div>`}
-          <p class="legal-line">Secure checkout is hosted by Sociobot; Dodo is merchant of record. Refunds are handled there and revoke the license. See <a href="/privacy/">privacy</a> and <a href="/terms/">terms</a>.</p>
+          <p class="legal-line">Checkout is hosted by Sociobot. Dodo is merchant of record. Refunds are handled there and revoke the license. See <a href="/privacy/">privacy</a> and <a href="/terms/">terms</a>.</p>
         </div>
       </section>
     </main>
 
     <footer class="site-footer no-print">
       <div><img src="/icons/app-mark.svg" width="32" height="32" alt="" /><strong>Rehearsal Section Cues</strong></div>
-      <p>Your notes stay in this browser. No accounts, scores, trackers, or cloud rooms.</p>
+      <p>Cue sheets for clear rehearsal repeats.</p>
       <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
-      <small>Original editorial image generated for this product with the factory image model. © 2026 Sociobot.</small>
+      <small>Built by Param Factory · Build 1.1.0 · Original editorial image generated for this product.</small>
     </footer>
 
     <div id="toast" class="toast no-print" role="status" ${deletedCue ? '' : 'hidden'}>
@@ -360,6 +424,8 @@ function cueFromElement(target: Element): Cue | undefined {
 
 function bindEvents(): void {
   document.querySelectorAll<HTMLElement>('[data-add]').forEach((button) => button.addEventListener('click', addCue))
+  document.querySelectorAll<HTMLElement>('#reset-demo, #reset-demo-banner').forEach((button) => button.addEventListener('click', () => void resetDemo()))
+  document.querySelectorAll<HTMLElement>('#start-real, #start-real-banner').forEach((button) => button.addEventListener('click', () => void startForReal()))
 
   document.querySelector<HTMLInputElement>('#sheet-title')?.addEventListener('input', (event) => {
     sheet.title = (event.currentTarget as HTMLInputElement).value
@@ -460,13 +526,8 @@ function setOnlineState(force?: boolean): void {
   if (state) state.textContent = online ? 'ONLINE' : 'OFFLINE — CHANGES STILL SAVE'
 }
 
-async function checkConnectivity(): Promise<void> {
-  try {
-    await fetch(`/connectivity-check.txt?t=${Date.now()}`, { cache: 'no-store' })
-    setOnlineState(true)
-  } catch {
-    setOnlineState(false)
-  }
+function checkConnectivity(): void {
+  setOnlineState(navigator.onLine)
 }
 
 async function registerServiceWorker(): Promise<void> {
@@ -488,6 +549,7 @@ async function registerServiceWorker(): Promise<void> {
 }
 
 async function init(): Promise<void> {
+  setRouteMetadata()
   try {
     captureReturnedLicense()
     unlocked = cachedUnlock()
@@ -495,13 +557,17 @@ async function init(): Promise<void> {
     // Private browsing may restrict localStorage; the free app remains usable.
   }
   try {
-    const stored = await loadSheet()
+    const stored = await loadSheet(storageNamespace)
     if (stored) sheet = normalizeSheet(stored)
+    else if (demoMode) {
+      sheet = demoSheet()
+      await saveSheet(sheet, 'demo')
+    }
   } catch {
     storageError = 'Local storage is unavailable. You can still draft and export this session.'
   }
   render()
-  window.addEventListener('online', () => void checkConnectivity())
+  window.addEventListener('online', checkConnectivity)
   window.addEventListener('offline', () => setOnlineState(false))
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault()
@@ -515,7 +581,7 @@ async function init(): Promise<void> {
     }
   })
   void registerServiceWorker()
-  void checkConnectivity()
+  checkConnectivity()
   try {
     if (localStorage.getItem('sb_license:rehearsal-section-cues')) {
       void verifyLicense().then((valid) => {

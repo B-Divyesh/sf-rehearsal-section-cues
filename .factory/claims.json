@@ -1,0 +1,142 @@
+[
+  {
+    "id": "demo-sample",
+    "claim": "Try a filled rehearsal cue sheet with sample data.",
+    "where": "Landing action, /demo",
+    "test": "npm run test:claims -- --grep @claim:demo-sample",
+    "sandbox": "Fresh /demo visit; verify the named realistic sample and four populated cues."
+  },
+  {
+    "id": "demo-isolation",
+    "claim": "Demo changes never change your real plan.",
+    "where": "Demo banner and controls",
+    "test": "npm run test:claims -- --grep @claim:demo-isolation",
+    "sandbox": "Create a real plan, edit and reset demo data, then return to the real plan."
+  },
+  {
+    "id": "automatic-saving",
+    "claim": "Cue-sheet changes save automatically.",
+    "where": "Cue sheet status",
+    "test": "npm run test:claims -- --grep @claim:automatic-saving",
+    "sandbox": "Edit a demo cue, wait for local save, and reload."
+  },
+  {
+    "id": "device-only",
+    "claim": "Your plan stays on this device.",
+    "where": "Landing facts, privacy page",
+    "test": "npm run test:claims -- --grep @claim:device-only",
+    "sandbox": "Record all browser requests while editing demo data; only the product origin may be used."
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit.",
+    "where": "Landing facts, README",
+    "test": "npm run test:claims -- --grep @claim:offline-reload",
+    "sandbox": "Own browser context; load /demo, wait for service-worker control, go offline, reload and edit."
+  },
+  {
+    "id": "keyboard-add",
+    "claim": "Ctrl or Cmd+Enter adds a cue and focuses its section label.",
+    "where": "Cue sheet shortcut",
+    "test": "npm run test:claims -- --grep @claim:keyboard-add",
+    "sandbox": "Fresh /demo; press Ctrl+Enter and verify added cue and focus."
+  },
+  {
+    "id": "mobile-layout",
+    "claim": "The cue sheet works on a 390-pixel phone screen.",
+    "where": "README",
+    "test": "npm run test:claims -- --grep @claim:mobile-layout",
+    "sandbox": "Fresh mobile browser context at 390×844; verify sample, no horizontal overflow, and 44px add target."
+  },
+  {
+    "id": "reduced-motion",
+    "claim": "The interface reduces motion when your device requests it.",
+    "where": "README",
+    "test": "npm run test:claims -- --grep @claim:reduced-motion",
+    "sandbox": "Fresh reduced-motion browser context on /demo; measure near-instant transition duration."
+  },
+  {
+    "id": "high-contrast-print",
+    "claim": "Prints a black-on-white cue sheet.",
+    "where": "Print section",
+    "test": "npm run test:claims -- --grep @claim:high-contrast-print",
+    "sandbox": "Fresh /demo in print media; check printable values, hidden controls, black text and white background."
+  },
+  {
+    "id": "json-export",
+    "claim": "Exports the cue sheet as JSON.",
+    "where": "Export button, README",
+    "test": "npm run test:claims -- --grep @claim:json-export",
+    "sandbox": "Fresh /demo; download JSON and validate the sample title and cue count."
+  },
+  {
+    "id": "csv-export",
+    "claim": "Exports the cue sheet as CSV.",
+    "where": "Export button, README",
+    "test": "npm run test:claims -- --grep @claim:csv-export",
+    "sandbox": "Fresh /demo; download CSV and validate headings and one row per cue."
+  },
+  {
+    "id": "import-recovery",
+    "claim": "Imports valid JSON or CSV after an invalid-file error.",
+    "where": "Import button, README",
+    "test": "npm run test:claims -- --grep @claim:import-recovery",
+    "sandbox": "Fresh /demo; import a malformed CSV, then import a valid cue CSV."
+  },
+  {
+    "id": "free-print-limit",
+    "claim": "Free printing supports up to six section cues.",
+    "where": "Print section, terms",
+    "test": "npm run test:claims -- --grep @claim:free-print-limit",
+    "sandbox": "Fresh /demo; add cues to seven and request print."
+  },
+  {
+    "id": "free-data-tools",
+    "claim": "Export stays available with any sheet size.",
+    "where": "Print section, terms",
+    "test": "npm run test:claims -- --grep @claim:free-data-tools",
+    "sandbox": "Fresh /demo; create seven cues and export all seven despite the print limit."
+  },
+  {
+    "id": "paid-unlimited-print",
+    "claim": "A valid Conductor license prints more than six cues.",
+    "where": "Conductor unlock, terms",
+    "test": "npm run test:claims -- --grep @claim:paid-unlimited-print",
+    "sandbox": "Fresh /demo with a cached valid license verdict; add seven cues and observe print action."
+  },
+  {
+    "id": "paid-condensed-print",
+    "claim": "A valid Conductor license enables the condensed ensemble layout.",
+    "where": "Conductor unlock, terms",
+    "test": "npm run test:claims -- --grep @claim:paid-condensed-print",
+    "sandbox": "Fresh /demo with a cached valid license verdict; enable the compact print control."
+  },
+  {
+    "id": "one-time-price",
+    "claim": "Conductor unlock is a $12 one-time purchase, not a subscription.",
+    "where": "Landing facts, Conductor unlock, terms",
+    "test": "npm run test:claims -- --grep @claim:one-time-price",
+    "sandbox": "Open the shipped terms page and verify the user-visible legal offer disclosure."
+  },
+  {
+    "id": "checkout-redirect",
+    "claim": "Conductor unlock starts checkout with the registered Sociobot product.",
+    "where": "Conductor unlock",
+    "test": "npm run test:claims -- --grep @claim:checkout-redirect",
+    "sandbox": "Use the published checkout endpoint without credentials and verify its hosted-checkout redirect."
+  },
+  {
+    "id": "no-accounts-or-trackers",
+    "claim": "You can use the sample without an account or tracker requests.",
+    "where": "Privacy page, README",
+    "test": "npm run test:claims -- --grep @claim:no-accounts-or-trackers",
+    "sandbox": "Fresh /demo; edit a cue while recording all browser requests."
+  },
+  {
+    "id": "no-score-or-cloud-storage",
+    "claim": "The app does not upload scores or cue-sheet notes to cloud storage.",
+    "where": "Privacy page, terms, README",
+    "test": "npm run test:claims -- --grep @claim:no-score-or-cloud-storage",
+    "sandbox": "Fresh /demo; enter rehearsal notes while recording all browser requests."
+  }
+]

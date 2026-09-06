@@ -70,6 +70,8 @@ Generation prompt:
 
 Generated through the factory Azure image deployment (`factory-image`) on 2026-08-27. The selected original and its prompt sidecar live in `assets/src/`; optimized WebP derivatives and a JPEG fallback live in `public/assets/`. Generated imagery is original to this product and is disclosed in the footer.
 
+The social preview at `public/assets/rehearsal-section-cues-social.jpg` is a 1200×630 center crop of that reviewed original, made on 2026-09-06 with ImageMagick. It introduces no text or new generated content and keeps the same provenance and license.
+
 ### Code-native marks
 
 The app mark is a hand-authored SVG composed of a drafting registration cross, a section bracket, and three pass lines. Rasterized 192 and 512 px maskable PWA icons reuse that geometry with the paper/cobalt palette. License: MIT with the application source.

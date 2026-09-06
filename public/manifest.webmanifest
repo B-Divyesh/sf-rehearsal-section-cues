@@ -3,7 +3,7 @@
   "short_name": "Section Cues",
   "description": "Build clear, printable rehearsal section plans that work offline.",
   "id": "/?source=pwa",
-  "start_url": "/?v=1",
+  "start_url": "/?v=2",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f7f3e8",
