@@ -4,7 +4,7 @@
 
 - Product: <https://rehearsal-section-cues.sociobot.in>
 - Implementation SHA deployed: `2a0b3de2a7173ecbabc5a9bc9c6fc8bf7b5aab80` (`fix: align offline fallback route`), following the demo implementation `1dfe9f7`.
-- Verification documentation SHA: recorded in the follow-up handoff commit.
+- Verification documentation SHA: `101b107f5774a586fe63d6dde26b2b7ca5c6367e` (`docs: record update verification`)
 - Deployment: factory static deployment completed on 2026-09-06 UTC. An initial upload used an older local `dist/` shell; the live-label comparison detected it, so SHA `1dfe9f7` was rebuilt and redeployed. The final SHA `2a0b3de` deployment also aligns the offline fallback with the shared site skeleton. Live HTML contains `REHEARSAL CUE SHEET` / `YOUR DEVICE`.
 
 The product now meets the job: a small ensemble leader or multi-instrument player can make, save, print, export, import, and rehearse a clear cue sheet with a section, pass, active players, risk, tempo, and completion state.
