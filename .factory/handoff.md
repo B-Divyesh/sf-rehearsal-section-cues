@@ -1,4 +1,26 @@
-# Verification handoff — PASS
+# Verification handoff — current review FAIL
+
+## Current release status
+
+The 2026-09-06 independent review is **FAIL**, not a product PASS. The live core cue editor works, but the mandatory one-click isolated demo and required `.factory/claims.json` claim-test catalog are absent. The review also records first-screen plain-language, 404, metadata/CSP, legal-route skeleton, cache-policy, and offline-console findings.
+
+Read [`.factory/review-1.md`](review-1.md) for the complete evidence, severity classification, 20 untested public claims, prior-finding disposition, and retest requirements. The current implementation SHA is `be3c8a76c3d93fbd837ab5d6ebb7a29a94bdf525`; documentation SHA is `108f75f5850605a9f4df6dc63ff56393cb170221`.
+
+## Commands verified in this review
+
+```sh
+npm ci
+npx playwright install chromium
+npm test
+npm run build
+npm run test:e2e
+```
+
+All above commands passed locally. That does not replace the missing declared claim commands.
+
+---
+
+# Historical verification handoff — PASS (superseded)
 
 Candidate verified: `be3c8a76c3d93fbd837ab5d6ebb7a29a94bdf525` (`docs: finalize audits and production handoff`)
 
