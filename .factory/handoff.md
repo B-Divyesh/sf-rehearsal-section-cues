@@ -1,57 +1,79 @@
-# Verification handoff — current review FAIL
+# Verification handoff — repair 1 PASS
 
-## Current release status
+## Release
 
-The 2026-09-06 independent review is **FAIL**, not a product PASS. The live core cue editor works, but the mandatory one-click isolated demo and required `.factory/claims.json` claim-test catalog are absent. The review also records first-screen plain-language, 404, metadata/CSP, legal-route skeleton, cache-policy, and offline-console findings.
+- Product: <https://rehearsal-section-cues.sociobot.in>
+- Implementation SHA deployed: `1dfe9f7` (`feat: add isolated demo and claim coverage`)
+- Documentation SHA: recorded in the follow-up handoff commit
+- Deployment: factory static deployment completed on 2026-09-06 UTC. The first upload used an older local `dist/` shell; this was detected by the live-label comparison and immediately corrected by rebuilding SHA `1dfe9f7` and deploying again. The final live HTML contains `REHEARSAL CUE SHEET` / `YOUR DEVICE` from that commit.
 
-Read [`.factory/review-1.md`](review-1.md) for the complete evidence, severity classification, 20 untested public claims, prior-finding disposition, and retest requirements. The current implementation SHA is `be3c8a76c3d93fbd837ab5d6ebb7a29a94bdf525`; documentation SHA is `108f75f5850605a9f4df6dc63ff56393cb170221`.
+The product now meets the job: a small ensemble leader or multi-instrument player can make, save, print, export, import, and rehearse a clear cue sheet with a section, pass, active players, risk, tempo, and completion state.
 
-## Commands verified in this review
+## What changed
+
+- Added `/demo` with four realistic Thursday-trio cues, a visible demo label, Reset demo, and Start for real. Demo storage uses IndexedDB `demo:rehearsal-section-cues`; real plans use `rehearsal-section-cues` and are not read or written during demo mode.
+- Added [claims catalog](claims.json), 20 tagged browser claims, the demo guide, landing copy audit, and a plain catalog description. Each claim has an observable sandbox test.
+- Rewrote the first screen in plain language: job, audience, sample-first action, and device/offline/price facts are visible before scrolling on desktop and 390px phone.
+- Added a product-styled HTTP 404, route-specific titles, canonical/social metadata, original 1200×630 social image, sitemap `/demo`, shared legal skeletons, CSP/security headers, manifest media type, and immutable asset caching.
+- Removed the offline connectivity request that logged expected failed-resource noise. Offline state now uses browser connectivity events.
+- Pinned Playwright to `1.58.2`, added the URL verifier, and retained the existing local-first core, exports, import recovery, print boundary, checkout, and license paths.
+
+## Verification
+
+Fresh detached worktree at `1dfe9f7`:
 
 ```sh
 npm ci
 npx playwright install chromium
 npm test
 npm run build
-npm run test:e2e
 ```
 
-All above commands passed locally. That does not replace the missing declared claim commands.
+Results: `npm test` **3/3 passed**; production build passed and created `dist/`; all 20 commands declared in `claims.json` passed individually; `npm run test:e2e` **46/46 passed** across desktop and 390×844 mobile.
 
----
+Live cold checks after the final deployment:
 
-# Historical verification handoff — PASS (superseded)
-
-Candidate verified: `be3c8a76c3d93fbd837ab5d6ebb7a29a94bdf525` (`docs: finalize audits and production handoff`)
-
-Live URL verified: <https://rehearsal-section-cues.sociobot.in/> on 2026-08-28 UTC.
-
-## Release decision
-
-**PASS — the candidate and live deployment meet the researched cue-sheet-builder contract.** Fresh evidence clears the prior deployment-only billing failure: the configured Sociobot checkout endpoint now returns a hosted Dodo checkout **303**. The local-first cue workflow, mobile layout, accessibility, high-contrast print, privacy model, offline PWA, and invalid-license recovery all passed.
-
-## Evidence summary
-
-- Clean detached candidate checkout: `npm ci` (0 reported vulnerabilities), `npm test` (3/3), and exact `npm run build` all passed. The available TypeScript check is part of the production build; no lint command/configuration exists.
-- After installing the lockfile-resolved Chromium, repository Playwright passed 6/6 on desktop and 390×844 mobile.
-- Independent live Chromium testing passed normal creation/persistence/completion, numeric boundaries (`0 → 1`, `999 → 400`), seven-cue free-print gating, malformed-then-valid CSV recovery, deletion/Undo, export, keyboard focus, print styling, 390px no-overflow, reduced motion, axe (0 serious/critical), offline reload/editing, invalid-license recovery, and service-worker update toast/reload behavior.
-- Live HTML, manifest, and image hashes match the candidate build. Service-worker logic/precache matches; its cache-version timestamp is intentionally build-specific.
-- Normal live loads made no third-party requests, trackers, analytics, CDN font requests, console errors, or page errors. Cue data stays in IndexedDB; a supplied license token is the only data sent to permitted Sociobot verification.
-- Fresh mobile Lighthouse: Performance **100**, Accessibility **100**, Best Practices **100**, SEO **100**; FCP 834 ms, LCP 906 ms, TBT 34 ms, CLS 0. The report wrote successfully; Chrome then crashed while gathering optional final screenshot/BFCache artifacts.
-
-## Non-blocking follow-up
-
-- **P3:** live static responses use a 30-second revalidating cache policy. Consider immutable caching for content-addressed assets while keeping HTML/service worker short-lived.
-- **P3:** deliberate offline mode logs the expected failed `/connectivity-check.txt` request before the correct offline state appears.
+- `scripts/verify-url.sh` passed for `/demo`, `/privacy/`, and `/terms/`: one title, `lang=en`, one main, one h1, image alt attributes, and no console errors.
+- Fresh desktop and phone contexts saw the plain first screen, then the one-click sample with four populated cues and the persistent demo controls. Neither viewport overflowed. Normal demo traffic stayed same-origin.
+- Playwright Axe on live desktop and phone found **0 serious/critical** violations. The standalone Axe CLI was attempted, but the runner’s installed ChromeDriver supports Chrome 152 while the factory’s supplied Chromium is 145; the required equivalent Playwright Axe integration completed successfully.
+- Live offline test: after service-worker control, `/demo` reloaded offline, displayed `OFFLINE — CHANGES STILL SAVE`, marked a cue rehearsed, and had **0** console errors.
+- `/not-a-real-page` returns HTTP **404** with `Page not found — Rehearsal Section Cues` and recovery links.
+- Live headers: `Content-Security-Policy` (including response-header `frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy`, Permissions Policy; manifest is `application/manifest+json`; hashed app assets are `max-age=31536000, immutable`; HTML is `no-cache, must-revalidate`.
+- Live Lighthouse on `/demo`: Performance **98**, Accessibility **100**, Best Practices **100**, SEO **100**; LCP **0.9 s**, CLS **0**.
+- Live product checkout returned HTTP **303** to the registered hosted checkout. The offer evidence is in `/work/.evidence/billing-offer.json`.
 
 ## Reproduce
 
 ```sh
 npm ci
+npx playwright install chromium
 npm test
 npm run build
-npx playwright install chromium
 npm run test:e2e
 ```
 
-Run `npm run preview` for exact `dist/`. Full fresh evidence is in [`.factory/verification-2.md`](verification-2.md).
+Run every public claim from a clean build:
+
+```sh
+node -e "for (const claim of require('./.factory/claims.json')) console.log(claim.test)"
+```
+
+Run each printed command. `npm run preview` serves `dist/`; `scripts/verify-url.sh <url>` checks the basic document and console state.
+
+## Earlier findings disposition
+
+| Finding | Disposition |
+| --- | --- |
+| Missing one-click demo sandbox | Resolved with isolated `/demo`, sample, reset, start-real, and demo guide. |
+| Missing claims catalog / 20 untested claims | Resolved with `claims.json`, 20 tagged observable tests, and individual clean-run evidence. |
+| First screen and plain words | Resolved; audited in `copy-audit.md`. |
+| Missing designed 404 | Resolved; live HTTP 404 verified. |
+| Missing metadata, CSP, manifest type | Resolved; live metadata and headers verified. |
+| Legal pages missing shared skeleton | Resolved; header, skip link, nav, footer, title, and h1 added. |
+| Short asset cache policy | Resolved; live app assets are immutable for one year. |
+| Offline probe console error | Resolved; fresh live offline test has no console errors. |
+| Earlier unavailable checkout | Already resolved before this repair; rechecked live as HTTP 303. |
+
+## Known limitation
+
+No real purchase or valid production license was used. Checkout routing, the invalid-license recovery path, and the post-verification valid-license UI gate are tested; a full paid return-token/entitlement test requires a billing-issued test or purchased license from the billing operator. The free core is complete and remains usable without it.
