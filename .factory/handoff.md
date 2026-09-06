@@ -4,7 +4,7 @@
 
 - Product: <https://rehearsal-section-cues.sociobot.in>
 - Implementation SHA deployed: `1dfe9f7` (`feat: add isolated demo and claim coverage`)
-- Documentation SHA: recorded in the follow-up handoff commit
+- Verification documentation SHA: `4c13332fdb72bb28709b7dd86da778e9da6ab693` (`docs: record repair verification`)
 - Deployment: factory static deployment completed on 2026-09-06 UTC. The first upload used an older local `dist/` shell; this was detected by the live-label comparison and immediately corrected by rebuilding SHA `1dfe9f7` and deploying again. The final live HTML contains `REHEARSAL CUE SHEET` / `YOUR DEVICE` from that commit.
 
 The product now meets the job: a small ensemble leader or multi-instrument player can make, save, print, export, import, and rehearse a clear cue sheet with a section, pass, active players, risk, tempo, and completion state.
